@@ -1,0 +1,147 @@
+﻿@model CvBuilder.Models.CvModel
+@{
+    Layout = "_Layout";
+}
+<style>
+    .form-box {
+        background: #0B3B3A;
+        padding: 25px;
+        border-radius: 18px;
+        max-width: 750px;
+        margin: 20px auto;
+        color: white;
+    }
+
+        .form-box label {
+            margin-top: 10px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .form-box input, .form-box textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 10px;
+        }
+
+    .color-option {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: inline-block;
+        cursor: pointer;
+        border: 3px solid transparent;
+        margin: 5px;
+    }
+
+        .color-option.selected {
+            border-color: white;
+            transform: scale(1.2);
+        }
+
+    .template-card {
+        background: white;
+        color: #333;
+        padding: 12px;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+
+        .template-card.selected {
+            border-color: #0B3B3A;
+            background: #e6f0ef;
+        }
+
+    .btn-submit {
+        background: white;
+        color: #0B3B3A;
+        padding: 12px;
+        border-radius: 25px;
+        width: 100%;
+        font-weight: bold;
+        border: none;
+        margin-top: 15px;
+    }
+</style>
+
+<h2 style="text-align:center; color:#0B3B3A;">Create Your CV</h2>
+
+<div class="form-box">
+    <form asp-action="Preview" method="post" id="cvForm">
+        <!-- 1. اللون -->
+        <p>1. اختر اللون الرئيسي</p>
+        <div>
+            <span class="color-option selected" style="background:#0B3B3A" data-color="#0B3B3A"></span>
+            <span class="color-option" style="background:#000000" data-color="#000000"></span>
+            <span class="color-option" style="background:#3b82f6" data-color="#3b82f6"></span>
+            <span class="color-option" style="background:#e91e8c" data-color="#e91e8c"></span>
+            <span class="color-option" style="background:#8B4513" data-color="#8B4513"></span>
+            <span class="color-option" style="background:#444" data-color="#222"></span>
+        </div>
+        <input type="hidden" asp-for="SelectedColor" id="SelectedColor" />
+
+        <!-- 2. القالب -->
+        <p style="margin-top:15px;">2. اختر شكل القالب</p>
+        <div style="display:flex; gap:10px;">
+            <div class="template-card selected" data-template="Modern">📄<br />Modern</div>
+            <div class="template-card" data-template="Minimal">📝<br />Minimal</div>
+            <div class="template-card" data-template="Creative">💡<br />Creative</div>
+        </div>
+        <input type="hidden" asp-for="TemplateStyle" id="TemplateStyle" />
+
+        <!-- 3. الصورة - هنا مكانها بالظبط -->
+        <div style="text-align:center; margin:20px 0; background:#ffffff20; padding:15px; border-radius:12px;">
+            <div id="photoPreview" style="width:80px;height:80px;border-radius:50%;background:white;margin:0 auto;display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid white;">
+                <span id="previewText" style="color:#0B3B3A;font-weight:bold;">MA</span>
+            </div>
+            <label style="background:white;color:#0B3B3A;padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;margin-top:10px;display:inline-block;">
+                📷 حمل صورتك
+                <input type="file" id="photoInput" accept="image/*" style="display:none;" />
+            </label>
+            <input type="hidden" asp-for="PhotoBase64" id="PhotoBase64" />
+        </div>
+
+        <label>Full Name</label><input asp-for="FullName" />
+        <label>Job Title</label><input asp-for="JobTitle" />
+        <label>Email</label><input asp-for="Email" />
+        <label>Phone</label><input asp-for="Phone" />
+        <label>Address</label><input asp-for="Address" />
+        <label>Summary</label><textarea asp-for="Summary" rows="2"></textarea>
+        <label>Experience</label><textarea asp-for="Experience" rows="2"></textarea>
+        <label>Education</label><textarea asp-for="Education" rows="2"></textarea>
+        <label>Skills</label><input asp-for="Skills" />
+        <label>Languages</label><input asp-for="Languages" />
+        <button type="submit" class="btn-submit">Preview CV →</button>
+    </form>
+</div>
+
+<script>
+    document.querySelectorAll('.color-option').forEach(c=>{
+      c.addEventListener('click',()=>{
+        document.querySelectorAll('.color-option').forEach(x=>x.classList.remove('selected'));
+        c.classList.add('selected');
+        document.getElementById('SelectedColor').value=c.dataset.color;
+      });
+    });
+    document.querySelectorAll('.template-card').forEach(c=>{
+      c.addEventListener('click',()=>{
+        document.querySelectorAll('.template-card').forEach(x=>x.classList.remove('selected'));
+        c.classList.add('selected');
+        document.getElementById('TemplateStyle').value=c.dataset.template;
+      });
+    });
+    document.getElementById('photoInput').addEventListener('change', function(e){
+        var file = e.target.files[0];
+        if(!file) return;
+        var reader = new FileReader();
+        reader.onload = function(ev){
+            document.getElementById('PhotoBase64').value = ev.target.result;
+            document.getElementById('photoPreview').innerHTML = '<img src="'+ev.target.result+'" style="width:100%;height:100%;object-fit:cover;" />';
+        };
+        reader.readAsDataURL(file);
+    });
+</script>

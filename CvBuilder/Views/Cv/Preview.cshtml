@@ -1,0 +1,203 @@
+﻿@model CvBuilder.Models.CvModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CV Preview</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #525659;
+        }
+
+        .screen-wrap {
+            background: #525659;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .toolbar {
+            width: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+            .toolbar a, .toolbar button {
+                padding: 12px 10px;
+                border-radius: 25px;
+                border: none;
+                text-align: center;
+                text-decoration: none;
+                font-weight: bold;
+                cursor: pointer;
+                width: 100%;
+                font-size: 13px;
+            }
+
+        .b1 {
+            background: white;
+            color: black;
+            border: 1px solid #ccc !important;
+        }
+
+        .b2 {
+            background: #0B3B3A;
+            color: white;
+        }
+
+        .b3 {
+            background: black;
+            color: white;
+        }
+
+        #cvToPdf {
+            width: 210mm;
+            height: 297mm;
+            min-height: 297mm;
+            background: white;
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+        }
+
+        .left {
+            width: 70mm;
+            min-height: 297mm;
+            background: @(Model.SelectedColor ?? "#0B3B3A");
+            color: white;
+            padding: 10mm 6mm;
+            box-sizing: border-box;
+        }
+
+        .right {
+            width: 140mm;
+            min-height: 297mm;
+            background: white;
+            padding: 10mm 8mm;
+            box-sizing: border-box;
+            color: #222;
+        }
+
+            .right h3 {
+                color: @(Model.SelectedColor ?? "#0B3B3A");
+                font-size: 11px;
+                border-bottom: 2px solid @(Model.SelectedColor ?? "#0B3B3A");
+                display: inline-block;
+                margin: 18px 0 8px 0;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+
+            .right p, .left p {
+                white-space: pre-line;
+                font-size: 11px;
+                line-height: 1.7;
+                word-break: break-word;
+                margin: 0;
+            }
+
+        .left h4 {
+            font-size: 10.5px;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid #ffffff50;
+            padding-bottom: 4px;
+            margin: 18px 0 6px 0;
+            text-transform: uppercase;
+        }
+
+        @@media print {
+            html, body, .screen-wrap {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .toolbar {
+                display: none !important;
+            }
+
+            #cvToPdf {
+                box-shadow: none !important;
+                width: 210mm;
+                height: 297mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="screen-wrap">
+        <div id="cvToPdf">
+            <div class="left">
+                <div style="width:30mm;height:30mm;background:white;border-radius:50%;margin:0 auto;overflow:hidden;display:flex;align-items:center;justify-content:center;border:2px solid white;">
+                    @if (!string.IsNullOrEmpty(Model.PhotoBase64))
+                    {
+                        <img src="@Model.PhotoBase64" style="width:100%;height:100%;object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <span style="color:@(Model.SelectedColor ?? "#0B3B3A");font-weight:bold;font-size:18px;">@("MA")</span>
+                    }
+                </div>
+                <h3 style="text-align:center;font-size:11px;margin-top:4mm;margin-bottom:1mm;word-break:break-word;">@Model.FullName</h3>
+                <p style="text-align:center;font-size:8px;opacity:0.9;">@Model.JobTitle</p>
+
+                <h4>CONTACT</h4>
+                <p style="font-size:10.5px;">
+                    @Model.Email
+                    @Model.Phone
+                    @Model.Address
+                </p>
+
+                <h4>SKILLS</h4>
+                <p style="font-size:10.5px;">@Model.Skills</p>
+
+                <h4>LANGUAGES</h4>
+                <p style="font-size:10.5px;">@Model.Languages</p>
+            </div>
+
+            <div class="right">
+                <h3>ABOUT ME</h3>
+                <p>@Model.Summary</p>
+
+                <h3>EXPERIENCE</h3>
+                <p>@Model.Experience</p>
+
+                <h3>EDUCATION</h3>
+                <p>@Model.Education</p>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <a href="/Cv/Index" class="b1">📝 تعديل البيانات</a>
+            <button onclick="window.print()" class="b2">🖨️ طباعة</button>
+            <button onclick="downloadPDF()" class="b3">⬇️ تحميل PDF</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function downloadPDF(){
+            var element = document.getElementById('cvToPdf');
+            var opt = {
+              margin: 0,
+              filename: 'Marwa_CV_A4.pdf',
+              image: { type: 'jpeg', quality: 1 },
+              html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html>
